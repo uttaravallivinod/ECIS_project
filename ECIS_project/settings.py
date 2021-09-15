@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+GDAL_LIBRARY_PATH= r'C:\OSGeo4W\bin\gdal303.dll'
+GEOS_LIBRARY_PATH= r'C:\OSGeo4W\bin\geos_c.dll'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
+    'whether_details'
 ]
 
 MIDDLEWARE = [
@@ -75,8 +79,12 @@ WSGI_APPLICATION = 'ECIS_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'ECIS_DB',
+        'USER': 'postgres',
+        'PASSWORD': 'Vinod@7674',
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
