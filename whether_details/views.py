@@ -1,15 +1,19 @@
 from django.shortcuts import redirect, render
+from requests.adapters import HTTPResponse
 from .models import Whether
 import folium
 from django.conf import settings
 from geopy.exc import GeocoderTimedOut
 from geopy.geocoders import Nominatim
 from django.contrib.gis.geos import Point
+import requests
+import json
 
 
 # Create your views here.
 
 def home(request):
+    key="f14c03d5b7874fe785e14744211709"
     context=[]
     if request.method=='POST':
         city_name=request.POST['city']
@@ -29,16 +33,33 @@ def home(request):
         geo_info={}
         geo_info['latitude']=latest_object.location.x
         geo_info['longitude']=latest_object.location.y
-        geo_info['city']=city_name
+        try:
+            url=f"http://api.weatherapi.com/v1/current.json?key={key} &q={geo_info['latitude']},{geo_info['longitude']}&aqi=no"
+            geo_info['whether1']=requests.get(url)
+            geo_info['whether']=requests.get(url)
+
+
+        except Exception as e:
+            return HTTPResponse(e)
+        whether_data=json.loads(geo_info['whether1']._content)
+        geo_info['temparature_in_c']=whether_data['current']['temp_c']
+        geo_info['temparature_in_f']=whether_data['current']['temp_f']
+        geo_info['humidity']=whether_data['current']['humidity']
+        geo_info['city']=whether_data['location']['name']
+        geo_info['status']=whether_data['current']['condition']['text']
         context.append(geo_info)
         return render(request,'home.html',{'data':context})
         
-    locations=Whether.objects.all()
+    locations=Whether.objects.all().order_by('-date')[:5]
     for location in locations:
         temp={}
         temp['latitude']=location.location.x
         temp['longitude']=location.location.y
-        temp['city']=location.city
+        try:
+            url=f"http://api.weatherapi.com/v1/current.json?key={key} &q={temp['latitude']},{temp['longitude']}&aqi=no"
+            temp['whether']=json.loads(requests.get(url)._content)
+        except Exception as e:
+            return HTTPResponse(e)
         context.append(temp)
 
     return render(request,'home.html',{'data':context})

@@ -80,7 +80,11 @@
     
             marker_3bd463a91064465487f6f34fdcc7186e.bindTooltip(
                 `<div>
-                     <b>{{location.city}}</b>
+                     <p>Area: {{location.whether.location.name}} ({{location.whether.current.condition.text}})</p>
+                     <p>Temparature in celsius: {{location.whether.current.temp_c}}</p>
+                     <p>Temparature in fahrenheit:{{location.whether.current.temp_f}}</p>
+                     <p>Humidity: {{location.whether.current.humidity}}</p>
+
                  </div>`,
                 {"sticky": true}
             );
