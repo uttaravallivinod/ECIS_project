@@ -35,18 +35,10 @@ def home(request):
         geo_info['longitude']=latest_object.location.y
         try:
             url=f"http://api.weatherapi.com/v1/current.json?key={key} &q={geo_info['latitude']},{geo_info['longitude']}&aqi=no"
-            geo_info['whether1']=requests.get(url)
-            geo_info['whether']=requests.get(url)
-
-
+            
+            geo_info['whether']=json.loads(requests.get(url)._content)
         except Exception as e:
             return HTTPResponse(e)
-        whether_data=json.loads(geo_info['whether1']._content)
-        geo_info['temparature_in_c']=whether_data['current']['temp_c']
-        geo_info['temparature_in_f']=whether_data['current']['temp_f']
-        geo_info['humidity']=whether_data['current']['humidity']
-        geo_info['city']=whether_data['location']['name']
-        geo_info['status']=whether_data['current']['condition']['text']
         context.append(geo_info)
         return render(request,'home.html',{'data':context})
         
@@ -62,4 +54,4 @@ def home(request):
             return HTTPResponse(e)
         context.append(temp)
 
-    return render(request,'home.html',{'data':context})
+    return render(request,'home.html',{'data':context,'info':'Recent '+str(len(context))+' location details:'})
