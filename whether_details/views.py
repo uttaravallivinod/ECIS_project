@@ -8,10 +8,6 @@ from geopy.geocoders import Nominatim
 from django.contrib.gis.geos import Point
 import requests
 import json
-
-
-# Create your views here.
-
 def home(request):
     key="f14c03d5b7874fe785e14744211709"
     context=[]
@@ -25,7 +21,6 @@ def home(request):
             coordinates=Point(latitude,longitude)
             whether_object=Whether.objects.create(location=coordinates)
             whether_object.save()
-
         except Exception as e:
             print(e)
             return redirect('/')
@@ -35,13 +30,11 @@ def home(request):
         geo_info['longitude']=latest_object.location.y
         try:
             url=f"http://api.weatherapi.com/v1/current.json?key={key} &q={geo_info['latitude']},{geo_info['longitude']}&aqi=no"
-            
             geo_info['whether']=json.loads(requests.get(url)._content)
         except Exception as e:
             return HTTPResponse(e)
         context.append(geo_info)
         return render(request,'home.html',{'data':context})
-        
     locations=Whether.objects.all().order_by('-date')[:5]
     for location in locations:
         temp={}
@@ -53,5 +46,4 @@ def home(request):
         except Exception as e:
             return HTTPResponse(e)
         context.append(temp)
-
     return render(request,'home.html',{'data':context,'info':'Recent '+str(len(context))+' location details:'})
