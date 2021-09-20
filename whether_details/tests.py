@@ -1,5 +1,6 @@
 from django.http import response
 from django.test import TestCase
+from geopy import location
 from whether_details.models import Whether
 from django.contrib.gis.geos import Point
 from django.urls import reverse
@@ -15,6 +16,8 @@ class Testing_Models(TestCase):
     def test_insert_records(self):
         Whether.objects.create(location=Point([54.5678,23.5994])).save()
         self.assertEqual(Whether.objects.all().count(),3)
+        response=self.client.get('/')
+        self.assertEqual(response.status_code,200)
     def test_delete_records(self):
         obj=Whether.objects.earliest('id')
         obj.delete()
@@ -25,8 +28,15 @@ class Testing_Urls(TestCase):
         response=self.client.get(url)
         self.assertEqual(response.status_code,200)
     def test_view_checking(self):
-        response=self.client.get(reverse('home_page'))
+        response=self.client.get('/')
         self.assertEqual(response.status_code,200)
+    def test_post_point(self):
+        response=self.client.post('/',{'city':'tokyo'})
+        self.assertEqual(response.status_code,200)
+    def test_post_failure(self):
+        response=self.client.post('/',{'city':'456ddnjn'})
+        self.assertEqual(response.status_code,302)
+
 
 
 
